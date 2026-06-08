@@ -1,0 +1,20 @@
+{
+  "entity.galgochim.galgoach": "גלגוח",
+  "entity.galgochim.pilapa": "פילאפה",
+  "entity.galgochim.karner": "קרנר",
+
+  "item.galgochim.galgoach_spawn_egg": "ביצת הקנעה של גלגוח",
+  "item.galgochim.pilapa_spawn_egg": "ביצת הקנעה של פילאפה",
+  "item.galgochim.karner_spawn_egg": "ביצת הקנעה של קרנר",
+
+  "item.galgochim.music_disc_galgochim_bastav": "תקליטור מוזיקה",
+  "item.galgochim.music_disc_galgochim_bastav.desc": "גלגוחים בסתיו",
+  "item.galgochim.music_disc_tekef_yavo_shekemist": "תקליטור מוזיקה",
+  "item.galgochim.music_disc_tekef_yavo_shekemist.desc": "תכף יבוא שקמיסט",
+  "item.galgochim.music_disc_fishland_anthem": "תקליטור מוזיקה",
+  "item.galgochim.music_disc_fishland_anthem.desc": "המנון פישלנד",
+
+  "jukebox_song.galgochim.galgochim_bastav": "גלגוחים בסתיו",
+  "jukebox_song.galgochim.tekef_yavo_shekemist": "תכף יבוא שקמיסט",
+  "jukebox_song.galgochim.fishland_anthem": "המנון פישלנד"
+}

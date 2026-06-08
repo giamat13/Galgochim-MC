@@ -1,0 +1,20 @@
+{
+  "entity.galgochim.galgoach": "Galgoach",
+  "entity.galgochim.pilapa": "Pilapa",
+  "entity.galgochim.karner": "Karner",
+
+  "item.galgochim.galgoach_spawn_egg": "Galgoach Spawn Egg",
+  "item.galgochim.pilapa_spawn_egg": "Pilapa Spawn Egg",
+  "item.galgochim.karner_spawn_egg": "Karner Spawn Egg",
+
+  "item.galgochim.music_disc_galgochim_bastav": "Music Disc",
+  "item.galgochim.music_disc_galgochim_bastav.desc": "Galgochim baStav",
+  "item.galgochim.music_disc_tekef_yavo_shekemist": "Music Disc",
+  "item.galgochim.music_disc_tekef_yavo_shekemist.desc": "Tekef Yavo Shekemist",
+  "item.galgochim.music_disc_fishland_anthem": "Music Disc",
+  "item.galgochim.music_disc_fishland_anthem.desc": "Fishland Anthem",
+
+  "jukebox_song.galgochim.galgochim_bastav": "Galgochim baStav",
+  "jukebox_song.galgochim.tekef_yavo_shekemist": "Tekef Yavo Shekemist",
+  "jukebox_song.galgochim.fishland_anthem": "Fishland Anthem"
+}

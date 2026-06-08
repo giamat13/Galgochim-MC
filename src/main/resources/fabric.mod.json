@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "galgochim",
+	"version": "${version}",
+	"name": "Galgochim",
+	"description": "Adds the Galgoach (a wheeled, chicken-like bird that drops an autumn music disc), the long-legged Pilapa, and the Karner that hunts Pilapot.",
+	"authors": [
+		"Galgochim"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/galgochim/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.galgochim.Galgochim"
+		],
+		"client": [
+			"com.galgochim.client.GalgochimClient"
+		]
+	},
+	"mixins": [
+		"galgochim.mixins.json",
+		{
+			"config": "galgochim.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.1.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

@@ -1,0 +1,26 @@
+{
+  "music_disc.galgochim_bastav": {
+    "sounds": [
+      {
+        "name": "galgochim:galgochim_bastav",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.tekef_yavo_shekemist": {
+    "sounds": [
+      {
+        "name": "galgochim:tekef_yavo_shekemist",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.fishland_anthem": {
+    "sounds": [
+      {
+        "name": "galgochim:fishland_anthem",
+        "stream": true
+      }
+    ]
+  }
+}

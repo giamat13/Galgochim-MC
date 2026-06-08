@@ -1,0 +1,8 @@
+{
+  "comparator_output": 12,
+  "description": {
+    "translate": "jukebox_song.galgochim.galgochim_bastav"
+  },
+  "length_in_seconds": 105.0,
+  "sound_event": "galgochim:music_disc.galgochim_bastav"
+}
