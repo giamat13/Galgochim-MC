@@ -69,33 +69,51 @@ jar {
 	}
 }
 
-// TEMPORARY: discover real class locations in the MC 26.1.2 / Fabric mappings.
+// TEMPORARY: reflect on key MC 26.1.2 classes to learn exact signatures.
 tasks.named('compileJava').configure {
 	doFirst {
 		try {
-			def keywords = ['Villager', 'ItemCost', 'MerchantOffer', 'Jukebox',
-							'PointOfInterest', 'PoiType', 'DyedItemColor', 'TradeOffer', 'AbstractBoat']
-			def seen = new TreeSet()
-			sourceSets.main.compileClasspath.files.each { f ->
-				if (f.name.endsWith('.jar')) {
-					try {
-						new java.util.zip.ZipFile(f).withCloseable { zf ->
-							zf.entries().each { e ->
-								def n = e.name
-								if (n.endsWith('.class') && keywords.any { n.contains(it) }) {
-									seen << n.replace('/', '.').replace('.class', '')
-								}
+			def urls = sourceSets.main.compileClasspath.files.collect { it.toURI().toURL() } as URL[]
+			def cl = new URLClassLoader(urls, ClassLoader.getSystemClassLoader())
+			def mod = java.lang.reflect.Modifier
+			def dump = { String cn, boolean fieldsFilter ->
+				try {
+					def c = Class.forName(cn, false, cl)
+					println "CLASS " + cn
+					c.getDeclaredClasses().each { println "  NESTED " + it.getName() }
+					c.getDeclaredConstructors().each { ctor ->
+						if (mod.isPublic(ctor.getModifiers())) {
+							println "  CTOR(" + ctor.getParameterTypes().collect { it.getName() }.join(', ') + ")"
+						}
+					}
+					c.getDeclaredFields().each { fld ->
+						if (mod.isStatic(fld.getModifiers())) {
+							def nm = fld.getName()
+							if (!fieldsFilter || nm.contains("TRADE") || nm.contains("VILLAGER") || nm.contains("POI")) {
+								println "  SFIELD " + nm + " : " + fld.getType().getName()
 							}
 						}
-					} catch (ignored) {
 					}
+					c.getDeclaredMethods().each { m ->
+						if (mod.isStatic(m.getModifiers()) && mod.isPublic(m.getModifiers())) {
+							println "  SMETHOD " + m.getName() + "(" + m.getParameterTypes().collect { it.getName() }.join(',') + ") : " + m.getReturnType().getName()
+						}
+					}
+				} catch (Throwable t) {
+					println "  ERR " + cn + " : " + t
 				}
 			}
-			println "=== CLASS-DISCOVERY START ==="
-			seen.each { println "DISCOVERED " + it }
-			println "=== CLASS-DISCOVERY END ==="
+			println "=== REFLECT START ==="
+			dump('net.minecraft.world.entity.npc.villager.VillagerProfession', false)
+			dump('net.minecraft.world.item.trading.VillagerTrades', false)
+			dump('net.minecraft.world.item.trading.VillagerTrade', false)
+			dump('net.minecraft.world.item.trading.ItemCost', false)
+			dump('net.minecraft.world.item.trading.MerchantOffer', false)
+			dump('net.minecraft.core.registries.Registries', true)
+			dump('net.minecraft.world.entity.ai.village.poi.PoiType', false)
+			println "=== REFLECT END ==="
 		} catch (Throwable t) {
-			println "discovery failed: " + t
+			println "reflect failed: " + t
 		}
 	}
 }
