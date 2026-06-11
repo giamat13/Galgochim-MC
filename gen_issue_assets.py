@@ -12,9 +12,12 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(ROOT, "src", "main", "resources", "assets", "galgochim")
 ITEM_TEX = os.path.join(ASSETS, "textures", "item")
 ENT_TEX = os.path.join(ASSETS, "textures", "entity")
+BLOCK_TEX = os.path.join(ASSETS, "textures", "block")
 ITEM_DEF = os.path.join(ASSETS, "items")
 ITEM_MODEL = os.path.join(ASSETS, "models", "item")
-for d in (ITEM_TEX, ENT_TEX, ITEM_DEF, ITEM_MODEL):
+BLOCK_MODEL = os.path.join(ASSETS, "models", "block")
+BLOCKSTATE = os.path.join(ASSETS, "blockstates")
+for d in (ITEM_TEX, ENT_TEX, BLOCK_TEX, ITEM_DEF, ITEM_MODEL, BLOCK_MODEL, BLOCKSTATE):
     os.makedirs(d, exist_ok=True)
 
 
@@ -106,5 +109,54 @@ for i, (name, (base, accent)) in enumerate(ITEMS.items()):
 # Entity (ship) textures.
 ship_tex("hagit", hull=(150, 150, 160), dome=(120, 200, 230), seed=11)
 ship_tex("alien_ship", hull=(90, 150, 90), dome=(150, 240, 150), seed=22)
+
+
+def block_tex(name, base, accent, seed):
+    rnd = random.Random(seed)
+    w = h = 16
+    px = [(0, 0, 0, 0)] * (w * h)
+    for y in range(h):
+        for x in range(w):
+            col = accent if (5 <= y <= 10 and 5 <= x <= 10) else base
+            j = rnd.randint(-14, 14)
+            px[y * w + x] = (
+                max(0, min(255, col[0] + j)),
+                max(0, min(255, col[1] + j)),
+                max(0, min(255, col[2] + j)),
+                255,
+            )
+    write_png(os.path.join(BLOCK_TEX, name + ".png"), w, h, px)
+
+
+def block_json(name):
+    # cube_all block model
+    with open(os.path.join(BLOCK_MODEL, name + ".json"), "w") as f:
+        json.dump({"parent": "minecraft:block/cube_all",
+                   "textures": {"all": "galgochim:block/" + name}}, f, indent=2)
+    # item model parents the block model
+    with open(os.path.join(ITEM_MODEL, name + ".json"), "w") as f:
+        json.dump({"parent": "galgochim:block/" + name}, f, indent=2)
+    # item definition
+    with open(os.path.join(ITEM_DEF, name + ".json"), "w") as f:
+        json.dump({"model": {"type": "minecraft:model",
+                             "model": "galgochim:block/" + name}}, f, indent=2)
+
+
+BLOCKS = {
+    "microphone": ((60, 60, 66), (200, 200, 210)),
+    "washing_machine": ((225, 230, 240), (120, 170, 220)),
+}
+for i, (name, (base, accent)) in enumerate(BLOCKS.items()):
+    block_tex(name, base, accent, seed=300 + i)
+    block_json(name)
+
+# Blockstates.
+with open(os.path.join(BLOCKSTATE, "microphone.json"), "w") as f:
+    json.dump({"variants": {"": {"model": "galgochim:block/microphone"}}}, f, indent=2)
+with open(os.path.join(BLOCKSTATE, "washing_machine.json"), "w") as f:
+    json.dump({"variants": {
+        "filled=true": {"model": "galgochim:block/washing_machine"},
+        "filled=false": {"model": "galgochim:block/washing_machine"},
+    }}, f, indent=2)
 
 print("issue assets generated")

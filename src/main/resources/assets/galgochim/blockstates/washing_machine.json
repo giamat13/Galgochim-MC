@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "filled=true": {
+      "model": "galgochim:block/washing_machine"
+    },
+    "filled=false": {
+      "model": "galgochim:block/washing_machine"
+    }
+  }
+}

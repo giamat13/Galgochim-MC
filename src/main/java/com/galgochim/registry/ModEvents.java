@@ -2,15 +2,18 @@ package com.galgochim.registry;
 
 import java.util.List;
 
+import com.galgochim.block.WashingMachineBlock;
 import com.galgochim.entity.AlienShipEntity;
 import com.galgochim.entity.HagitEntity;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -52,6 +55,27 @@ public final class ModEvents {
         if (aliensEnabled && level.random.nextInt(2400) == 0) {
             summonAlien(level, players.get(level.random.nextInt(players.size())));
         }
+        // Bait: a full washing machine under open sky lures aliens even without the command.
+        if (level.getGameTime() % 100L == 0L) {
+            ServerPlayer player = players.get(level.random.nextInt(players.size()));
+            if (hasBaitNear(level, player.blockPosition()) && level.random.nextInt(20) == 0) {
+                summonAlien(level, player);
+            }
+        }
+    }
+
+    /** True if a full washing machine stands under open sky near the position. */
+    private static boolean hasBaitNear(ServerLevel level, BlockPos center) {
+        int r = 8;
+        for (BlockPos pos : BlockPos.betweenClosed(
+                center.offset(-r, -r, -r), center.offset(r, r, r))) {
+            BlockState state = level.getBlockState(pos);
+            if (state.is(ModBlocks.WASHING_MACHINE) && state.getValue(WashingMachineBlock.FILLED)
+                    && level.canSeeSky(pos.above())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Spawn a Hagit that drifts across the sky over the given player. */

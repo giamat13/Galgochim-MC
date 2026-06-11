@@ -1,5 +1,6 @@
 package com.galgochim;
 
+import com.galgochim.registry.ModBlocks;
 import com.galgochim.registry.ModCommands;
 import com.galgochim.registry.ModEntities;
 import com.galgochim.registry.ModEvents;
@@ -28,6 +29,7 @@ public class Galgochim implements ModInitializer {
 	public void onInitialize() {
 		ModSounds.register();
 		ModEntities.register();
+		ModBlocks.register();
 		ModItems.register();
 		ModSpawns.register();
 		ModLoot.register();

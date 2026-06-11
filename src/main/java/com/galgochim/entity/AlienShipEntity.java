@@ -2,7 +2,10 @@ package com.galgochim.entity;
 
 import java.util.List;
 
+import com.galgochim.block.WashingMachineBlock;
+import com.galgochim.registry.ModBlocks;
 import com.galgochim.registry.ModItems;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -16,6 +19,8 @@ import net.minecraft.world.item.DyedItemColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -90,11 +95,30 @@ public class AlienShipEntity extends Mob {
             if (this.random.nextFloat() < 0.25f) {
                 tookSomething |= this.bootToSock(player);
             }
+            // Empty any unroofed washing machines standing near the player.
+            tookSomething |= this.emptyMachines(server, player.blockPosition());
             if (tookSomething) {
                 server.playSound(null, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.BEACON_DEACTIVATE, SoundSource.HOSTILE, 1.0f, 2.0f);
             }
         }
+    }
+
+    /** Empty nearby full washing machines, unless they are protected by a roof. */
+    private boolean emptyMachines(ServerLevel server, BlockPos center) {
+        boolean any = false;
+        int r = 8;
+        for (BlockPos pos : BlockPos.betweenClosed(
+                center.offset(-r, -r, -r), center.offset(r, r, r))) {
+            BlockState state = server.getBlockState(pos);
+            if (state.is(ModBlocks.WASHING_MACHINE) && state.getValue(WashingMachineBlock.FILLED)
+                    && server.canSeeSky(pos.above())) {
+                server.setBlock(pos.immutable(), state.setValue(WashingMachineBlock.FILLED, false),
+                        Block.UPDATE_ALL);
+                any = true;
+            }
+        }
+        return any;
     }
 
     private boolean bootToSock(Player player) {
