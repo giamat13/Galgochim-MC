@@ -32,6 +32,10 @@ public class HagitEntity extends Mob {
     private Vec3 heading = new Vec3(0.4, 0.0, 0.0);
     private int lifetime = 2400; // ~2 minutes, then it leaves
     private boolean droppedChrono;
+    /** True while a player is close enough to have heard the captain (avoids replaying). */
+    private boolean captainAnnounced;
+    /** Players only hear the captain when the ship is this close (blocks). */
+    private static final double CAPTAIN_RANGE = 20.0;
     /** player UUID -> ticks until their fizzle-Shmilki vanishes. */
     private final Map<UUID, Integer> shmilkiTimers = new HashMap<>();
 
@@ -65,9 +69,16 @@ public class HagitEntity extends Mob {
         this.setPos(this.getX() + this.heading.x, this.getY() + this.heading.y, this.getZ() + this.heading.z);
 
         if (this.level() instanceof ServerLevel server) {
-            if (this.tickCount % 80 == 0) {
+            // Only "the captain speaks" when a player is really close, and only
+            // once per fly-by (re-armed once everyone is out of range) so the clip
+            // never stacks on top of itself.
+            boolean playerClose = server.getNearestPlayer(this, CAPTAIN_RANGE) != null;
+            if (playerClose && !this.captainAnnounced) {
                 server.playSound(null, this.getX(), this.getY(), this.getZ(),
-                        ModSounds.AMAR_HAKAPTAN, SoundSource.HOSTILE, 4.0f, 1.0f);
+                        ModSounds.AMAR_HAKAPTAN, SoundSource.HOSTILE, 1.0f, 1.0f);
+                this.captainAnnounced = true;
+            } else if (!playerClose) {
+                this.captainAnnounced = false;
             }
             // Resolve any pending "Shmilki fizzles away" timers.
             if (!this.shmilkiTimers.isEmpty()) {

@@ -69,6 +69,35 @@ jar {
 	}
 }
 
+// TEMPORARY: discover VillagerData / Villager profession API.
+tasks.named('compileJava').configure {
+	doFirst {
+		try {
+			def urls = sourceSets.main.compileClasspath.files.collect { it.toURI().toURL() } as URL[]
+			def cl = new URLClassLoader(urls, ClassLoader.getSystemClassLoader())
+			def mod = java.lang.reflect.Modifier
+			println "=== REFLECT START ==="
+			def vd = Class.forName('net.minecraft.world.entity.npc.villager.VillagerData', false, cl)
+			vd.getDeclaredConstructors().each { c ->
+				if (mod.isPublic(c.getModifiers())) println "VD-CTOR(" + c.getGenericParameterTypes().collect { it.getTypeName() }.join(', ') + ")"
+			}
+			vd.getDeclaredMethods().each { m ->
+				if (mod.isPublic(m.getModifiers())) println "VD-M " + m.getName() + "(" + m.getParameterTypes().collect { it.getSimpleName() }.join(',') + ") : " + m.getReturnType().getSimpleName()
+			}
+			def v = Class.forName('net.minecraft.world.entity.npc.villager.Villager', false, cl)
+			v.getMethods().each { m ->
+				def n = m.getName()
+				if (n.toLowerCase().contains('profession') || n.contains('VillagerData') || n.contains('Xp') || n.equals('isBaby') || n.contains('Restock')) {
+					println "V-M " + n + "(" + m.getParameterTypes().collect { it.getSimpleName() }.join(',') + ") : " + m.getReturnType().getSimpleName()
+				}
+			}
+			println "=== REFLECT END ==="
+		} catch (Throwable t) {
+			println "reflect failed: " + t
+		}
+	}
+}
+
 // configure the maven publication
 publishing {
 	publications {
