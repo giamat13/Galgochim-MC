@@ -5,6 +5,7 @@ import java.util.List;
 import com.galgochim.block.WashingMachineBlock;
 import com.galgochim.entity.AlienShipEntity;
 import com.galgochim.entity.HagitEntity;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
@@ -13,6 +14,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -40,6 +43,21 @@ public final class ModEvents {
             if (entity.level() instanceof ServerLevel server && server.getRandom().nextFloat() < 0.01f) {
                 server.playSound(null, entity.getX(), entity.getY(), entity.getZ(),
                         ModSounds.WILHELM_SCREAM, SoundSource.PLAYERS, 1.0f, 1.0f);
+            }
+        });
+
+        // Make Doron Fishler turn up naturally: about 1 in 20 unemployed adult
+        // villagers becomes a Doron. The decision is derived from the villager's
+        // UUID so it is stable across reloads (it can't snowball over time), and
+        // we bump trade XP so the profession sticks without a microphone nearby.
+        ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+            if (entity instanceof Villager villager
+                    && !villager.isBaby()
+                    && villager.getVillagerData().profession().is(VillagerProfession.NONE)
+                    && Math.floorMod(villager.getUUID().hashCode(), 20) == 0) {
+                villager.setVillagerData(
+                        villager.getVillagerData().withProfession(world.registryAccess(), ModVillagers.DORON_KEY));
+                villager.setVillagerXp(Math.max(1, villager.getVillagerXp()));
             }
         });
     }
