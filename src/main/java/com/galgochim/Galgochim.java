@@ -8,7 +8,6 @@ import com.galgochim.registry.ModItems;
 import com.galgochim.registry.ModLoot;
 import com.galgochim.registry.ModSounds;
 import com.galgochim.registry.ModSpawns;
-import com.galgochim.registry.ModVillagers;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.Identifier;
 
@@ -32,7 +31,6 @@ public class Galgochim implements ModInitializer {
 		ModEntities.register();
 		ModBlocks.register();
 		ModItems.register();
-		ModVillagers.register();
 		ModSpawns.register();
 		ModLoot.register();
 		ModEvents.register();

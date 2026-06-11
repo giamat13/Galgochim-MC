@@ -36,7 +36,7 @@ public class WashingMachineBlock extends Block {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
                                                BlockHitResult hit) {
         if (state.getValue(FILLED)) {
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 player.addItem(new ItemStack(ModItems.LAUNDRY_POWDER, 64));
                 level.setBlock(pos, state.setValue(FILLED, false), Block.UPDATE_ALL);
             }

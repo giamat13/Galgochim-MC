@@ -24,7 +24,7 @@ public class ChronoItem extends Item {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             RandomSource random = player.getRandom();
             DamageSource source = player.damageSources().magic();
             if (random.nextFloat() < 0.10f) {

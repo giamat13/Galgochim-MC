@@ -91,18 +91,18 @@ public class HagitEntity extends Mob {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        if (this.level() instanceof ServerLevel server && !this.droppedChrono
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        if (!this.droppedChrono
                 && (source.getDirectEntity() instanceof Projectile || source.getEntity() instanceof Projectile)) {
-            this.spawnAtLocation(server, ModItems.CHRONO);
+            this.spawnAtLocation(level, ModItems.CHRONO);
             this.droppedChrono = true;
         }
-        return super.hurt(source, amount);
+        return super.hurtServer(level, source, amount);
     }
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             player.addItem(new ItemStack(ModItems.SHMILKI));
             this.shmilkiTimers.put(player.getUUID(), 20); // vanishes after ~1 second
         }

@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
@@ -18,8 +19,9 @@ public final class ModCommands {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(Commands.literal("tooglehgit").executes(ctx -> {
                 ServerPlayer player = ctx.getSource().getPlayerOrException();
+                ServerLevel level = (ServerLevel) player.level();
                 ModEvents.hagitEnabled = !ModEvents.hagitEnabled;
-                ModEvents.summonHagit(player.serverLevel(), player);
+                ModEvents.summonHagit(level, player);
                 boolean on = ModEvents.hagitEnabled;
                 ctx.getSource().sendSuccess(
                         () -> Component.literal("Hagit fly-overs: " + (on ? "ON" : "OFF")), false);
@@ -28,8 +30,9 @@ public final class ModCommands {
 
             dispatcher.register(Commands.literal("tooglealians").executes(ctx -> {
                 ServerPlayer player = ctx.getSource().getPlayerOrException();
+                ServerLevel level = (ServerLevel) player.level();
                 ModEvents.aliensEnabled = !ModEvents.aliensEnabled;
-                ModEvents.summonAlien(player.serverLevel(), player);
+                ModEvents.summonAlien(level, player);
                 boolean on = ModEvents.aliensEnabled;
                 ctx.getSource().sendSuccess(
                         () -> Component.literal("Alien fly-overs: " + (on ? "ON" : "OFF")), false);

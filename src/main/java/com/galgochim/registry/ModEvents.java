@@ -29,11 +29,15 @@ public final class ModEvents {
     public static volatile boolean aliensEnabled = false;
 
     public static void register() {
-        ServerTickEvents.END_WORLD_TICK.register(ModEvents::onWorldTick);
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            for (ServerLevel level : server.getAllLevels()) {
+                onWorldTick(level);
+            }
+        });
 
         // 1% chance on every hit to anything: play the Wilhelm scream.
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamageTaken, damageTaken, blocked) -> {
-            if (entity.level() instanceof ServerLevel server && server.random.nextFloat() < 0.01f) {
+            if (entity.level() instanceof ServerLevel server && server.getRandom().nextFloat() < 0.01f) {
                 server.playSound(null, entity.getX(), entity.getY(), entity.getZ(),
                         ModSounds.WILHELM_SCREAM, SoundSource.PLAYERS, 1.0f, 1.0f);
             }
@@ -41,24 +45,23 @@ public final class ModEvents {
     }
 
     private static void onWorldTick(ServerLevel level) {
-        if (!level.dimensionType().natural() || !isNight(level)) {
+        if (!level.isNight()) {
             return;
         }
-        // Rare nightly chance to send a ship drifting over a random player.
         List<ServerPlayer> players = level.players();
         if (players.isEmpty()) {
             return;
         }
-        if (hagitEnabled && level.random.nextInt(2400) == 0) {
-            summonHagit(level, players.get(level.random.nextInt(players.size())));
+        if (hagitEnabled && level.getRandom().nextInt(2400) == 0) {
+            summonHagit(level, players.get(level.getRandom().nextInt(players.size())));
         }
-        if (aliensEnabled && level.random.nextInt(2400) == 0) {
-            summonAlien(level, players.get(level.random.nextInt(players.size())));
+        if (aliensEnabled && level.getRandom().nextInt(2400) == 0) {
+            summonAlien(level, players.get(level.getRandom().nextInt(players.size())));
         }
         // Bait: a full washing machine under open sky lures aliens even without the command.
         if (level.getGameTime() % 100L == 0L) {
-            ServerPlayer player = players.get(level.random.nextInt(players.size()));
-            if (hasBaitNear(level, player.blockPosition()) && level.random.nextInt(20) == 0) {
+            ServerPlayer player = players.get(level.getRandom().nextInt(players.size()));
+            if (hasBaitNear(level, player.blockPosition()) && level.getRandom().nextInt(20) == 0) {
                 summonAlien(level, player);
             }
         }
@@ -101,18 +104,12 @@ public final class ModEvents {
     }
 
     private static void placeOverhead(ServerLevel level, Entity ship, ServerPlayer player) {
-        double angle = level.random.nextDouble() * Math.PI * 2.0;
+        double angle = level.getRandom().nextDouble() * Math.PI * 2.0;
         double radius = 40.0;
         double x = player.getX() - Math.cos(angle) * radius;
         double z = player.getZ() - Math.sin(angle) * radius;
         double y = player.getY() + 30.0;
-        ship.moveTo(x, y, z, 0.0f, 0.0f);
-    }
-
-    /** Vanilla "night" window, computed from the day time to avoid version-specific helpers. */
-    private static boolean isNight(ServerLevel level) {
-        long t = level.getDayTime() % 24000L;
-        return t >= 13000L && t <= 23000L;
+        ship.setPos(x, y, z);
     }
 
     private static Vec3 headingTowards(ServerPlayer player, Entity ship) {

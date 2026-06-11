@@ -7,10 +7,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyedItemColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
 
 /**
@@ -27,7 +27,7 @@ public class SockItem extends Item {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.PASS;
         }
         DyedItemColor color = held.get(DataComponents.DYED_COLOR);
