@@ -69,6 +69,28 @@ jar {
 	}
 }
 
+// TEMPORARY: find the exact generic type of the VillagerProfession trades map.
+tasks.named('compileJava').configure {
+	doFirst {
+		try {
+			def urls = sourceSets.main.compileClasspath.files.collect { it.toURI().toURL() } as URL[]
+			def cl = new URLClassLoader(urls, ClassLoader.getSystemClassLoader())
+			println "=== REFLECT START ==="
+			def vp = Class.forName('net.minecraft.world.entity.npc.villager.VillagerProfession', false, cl)
+			vp.getDeclaredConstructors().each { ctor ->
+				println "VP-CTOR-GENERIC: " + ctor.getGenericParameterTypes().collect { it.getTypeName() }.join(' | ')
+			}
+			def vt = Class.forName('net.minecraft.world.item.trading.VillagerTrades', false, cl)
+			vt.getDeclaredClasses().each { println "VT-NESTED " + it.getName() }
+			def vtr = Class.forName('net.minecraft.world.item.trading.VillagerTrade', false, cl)
+			vtr.getDeclaredClasses().each { println "VTRADE-NESTED " + it.getName() }
+			println "=== REFLECT END ==="
+		} catch (Throwable t) {
+			println "reflect failed: " + t
+		}
+	}
+}
+
 // configure the maven publication
 publishing {
 	publications {
