@@ -69,49 +69,6 @@ jar {
 	}
 }
 
-// TEMPORARY: reflect on key MC 26.1.2 classes to learn exact signatures.
-tasks.named('compileJava').configure {
-	doFirst {
-		try {
-			def urls = sourceSets.main.compileClasspath.files.collect { it.toURI().toURL() } as URL[]
-			def cl = new URLClassLoader(urls, ClassLoader.getSystemClassLoader())
-			def mod = java.lang.reflect.Modifier
-			def dump = { String cn, boolean fieldsFilter ->
-				try {
-					def c = Class.forName(cn, false, cl)
-					println "CLASS " + cn
-					c.getDeclaredClasses().each { println "  NESTED " + it.getName() }
-					c.getDeclaredConstructors().each { ctor ->
-						if (mod.isPublic(ctor.getModifiers())) {
-							println "  CTOR(" + ctor.getParameterTypes().collect { it.getName() }.join(', ') + ")"
-						}
-					}
-					c.getDeclaredFields().each { fld ->
-						if (mod.isStatic(fld.getModifiers())) {
-							def nm = fld.getName()
-							if (!fieldsFilter || nm.contains("TRADE") || nm.contains("VILLAGER") || nm.contains("POI")) {
-								println "  SFIELD " + nm + " : " + fld.getType().getName()
-							}
-						}
-					}
-					c.getDeclaredMethods().each { m ->
-						if (mod.isStatic(m.getModifiers()) && mod.isPublic(m.getModifiers())) {
-							println "  SMETHOD " + m.getName() + "(" + m.getParameterTypes().collect { it.getName() }.join(',') + ") : " + m.getReturnType().getName()
-						}
-					}
-				} catch (Throwable t) {
-					println "  ERR " + cn + " : " + t
-				}
-			}
-			println "=== REFLECT START ==="
-			dump('net.minecraft.world.entity.npc.villager.VillagerProfession', false)
-			println "=== REFLECT END ==="
-		} catch (Throwable t) {
-			println "reflect failed: " + t
-		}
-	}
-}
-
 // configure the maven publication
 publishing {
 	publications {
