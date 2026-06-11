@@ -1,6 +1,8 @@
 package com.galgochim;
 
+import com.galgochim.registry.ModCommands;
 import com.galgochim.registry.ModEntities;
+import com.galgochim.registry.ModEvents;
 import com.galgochim.registry.ModItems;
 import com.galgochim.registry.ModLoot;
 import com.galgochim.registry.ModSounds;
@@ -29,6 +31,8 @@ public class Galgochim implements ModInitializer {
 		ModItems.register();
 		ModSpawns.register();
 		ModLoot.register();
+		ModEvents.register();
+		ModCommands.register();
 
 		LOGGER.info("Galgochim loaded: galgochim, pilapot and karnerim are roaming!");
 	}

@@ -2,6 +2,15 @@
   "entity.galgochim.galgoach": "גלגוח",
   "entity.galgochim.pilapa": "פילאפה",
   "entity.galgochim.karner": "קרנר",
+  "entity.galgochim.hagit": "ספינת החלל חגית",
+  "entity.galgochim.alien_ship": "חללית חייזרים",
+
+  "item.galgochim.shmamba": "שממבה",
+  "item.galgochim.shmilki": "שמילקי",
+  "item.galgochim.book_ani_yachol_lehasbir": "אני יכול להסביר",
+  "item.galgochim.laundry_powder": "אבקת כביסה",
+  "item.galgochim.chrono": "כרונומשהו",
+  "item.galgochim.sock": "גרב אחת",
 
   "item.galgochim.galgoach_spawn_egg": "ביצת הקנעה של גלגוח",
   "item.galgochim.pilapa_spawn_egg": "ביצת הקנעה של פילאפה",
