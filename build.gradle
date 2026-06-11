@@ -69,6 +69,37 @@ jar {
 	}
 }
 
+// TEMPORARY: discover real class locations in the MC 26.1.2 / Fabric mappings.
+tasks.named('compileJava').configure {
+	doFirst {
+		try {
+			def keywords = ['Villager', 'ItemCost', 'MerchantOffer', 'Jukebox',
+							'PointOfInterest', 'PoiType', 'DyedItemColor', 'TradeOffer', 'AbstractBoat']
+			def seen = new TreeSet()
+			sourceSets.main.compileClasspath.files.each { f ->
+				if (f.name.endsWith('.jar')) {
+					try {
+						new java.util.zip.ZipFile(f).withCloseable { zf ->
+							zf.entries().each { e ->
+								def n = e.name
+								if (n.endsWith('.class') && keywords.any { n.contains(it) }) {
+									seen << n.replace('/', '.').replace('.class', '')
+								}
+							}
+						}
+					} catch (ignored) {
+					}
+				}
+			}
+			println "=== CLASS-DISCOVERY START ==="
+			seen.each { println "DISCOVERED " + it }
+			println "=== CLASS-DISCOVERY END ==="
+		} catch (Throwable t) {
+			println "discovery failed: " + t
+		}
+	}
+}
+
 // configure the maven publication
 publishing {
 	publications {
