@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import com.galgochim.Galgochim;
 import com.galgochim.item.ChronoItem;
+import com.galgochim.item.SockItem;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -72,7 +73,7 @@ public final class ModItems {
 
     /** A single sock (גרב) - aliens turn leather boots into these. */
     public static final Item SOCK = register("sock",
-            props -> new Item(props));
+            props -> new SockItem(props));
 
     private static Item register(String name, Function<Item.Properties, Item> factory) {
         ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Galgochim.id(name));
