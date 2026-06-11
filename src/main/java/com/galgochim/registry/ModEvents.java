@@ -45,7 +45,10 @@ public final class ModEvents {
     }
 
     private static void onWorldTick(ServerLevel level) {
-        if (!level.isNight()) {
+        // Vanilla "night" window, derived from the game time (getGameTime is the
+        // one time accessor available in these mappings).
+        long timeOfDay = level.getGameTime() % 24000L;
+        if (timeOfDay < 13000L || timeOfDay > 23000L) {
             return;
         }
         List<ServerPlayer> players = level.players();
