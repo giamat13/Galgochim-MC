@@ -11,7 +11,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.trading.TradeSet;
@@ -56,7 +56,8 @@ public final class ModVillagers {
                 (Holder<PoiType> holder) -> holder.is(DORON_POI_KEY),
                 ImmutableSet.of(),
                 ImmutableSet.of(),
-                SoundEvents.VILLAGER_WORK_CARTOGRAPHER,
+                // No work sound - Doron should be quiet (no repetitive noise).
+                (SoundEvent) null,
                 trades);
         Registry.register(BuiltInRegistries.VILLAGER_PROFESSION, DORON_KEY, doron);
     }

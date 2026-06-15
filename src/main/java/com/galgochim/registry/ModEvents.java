@@ -1,6 +1,9 @@
 package com.galgochim.registry;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import com.galgochim.block.WashingMachineBlock;
 import com.galgochim.entity.AlienShipEntity;
@@ -9,6 +12,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -18,6 +22,8 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,8 +41,12 @@ public final class ModEvents {
     public static volatile boolean hagitEnabled = false;
     public static volatile boolean aliensEnabled = false;
 
+    /** player UUID -> ticks until their "vanishing" Shmilki disappears (from the chrono-thing). */
+    private static final Map<UUID, Integer> VANISHING_SHMILKI = new HashMap<>();
+
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
+            tickVanishingShmilki(server);
             for (ServerLevel level : server.getAllLevels()) {
                 onWorldTick(level);
             }
@@ -64,6 +74,40 @@ public final class ModEvents {
                 villager.setVillagerXp(Math.max(1, villager.getVillagerXp()));
             }
         });
+    }
+
+    /** Give a player a Shmilki that fizzles away ~1 second later (used by the chrono-thing). */
+    public static void giveVanishingShmilki(ServerPlayer player) {
+        player.addItem(new ItemStack(ModItems.SHMILKI));
+        VANISHING_SHMILKI.merge(player.getUUID(), 20, Math::max);
+    }
+
+    private static void tickVanishingShmilki(MinecraftServer server) {
+        if (VANISHING_SHMILKI.isEmpty()) {
+            return;
+        }
+        VANISHING_SHMILKI.entrySet().removeIf(entry -> {
+            int left = entry.getValue() - 1;
+            if (left <= 0) {
+                ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+                if (player != null) {
+                    removeOne(player, ModItems.SHMILKI);
+                }
+                return true;
+            }
+            entry.setValue(left);
+            return false;
+        });
+    }
+
+    private static void removeOne(ServerPlayer player, Item item) {
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.is(item)) {
+                stack.shrink(1);
+                break;
+            }
+        }
     }
 
     private static void onWorldTick(ServerLevel level) {

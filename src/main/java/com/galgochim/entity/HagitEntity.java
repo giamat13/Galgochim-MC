@@ -1,31 +1,22 @@
 package com.galgochim.entity;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import com.galgochim.registry.ModItems;
 import com.galgochim.registry.ModSounds;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * The Hagit (חגית) spaceship. It drifts across the night sky and continues on
- * its way. Shoot it with an arrow and it drops a chrono-thing; right-click it
- * and you get a Shmilki that fizzles away a second later. While it is around
- * you can hear "The captain said".
+ * its way. Shoot it with an arrow and it drops a chrono-thing. While it is
+ * around (and close) you can hear "The captain said".
  */
 public class HagitEntity extends Mob {
 
@@ -36,8 +27,6 @@ public class HagitEntity extends Mob {
     private boolean captainAnnounced;
     /** Players only hear the captain when the ship is this close (blocks). */
     private static final double CAPTAIN_RANGE = 20.0;
-    /** player UUID -> ticks until their fizzle-Shmilki vanishes. */
-    private final Map<UUID, Integer> shmilkiTimers = new HashMap<>();
 
     public HagitEntity(EntityType<? extends HagitEntity> type, Level level) {
         super(type, level);
@@ -80,21 +69,6 @@ public class HagitEntity extends Mob {
             } else if (!playerClose) {
                 this.captainAnnounced = false;
             }
-            // Resolve any pending "Shmilki fizzles away" timers.
-            if (!this.shmilkiTimers.isEmpty()) {
-                this.shmilkiTimers.entrySet().removeIf(entry -> {
-                    int left = entry.getValue() - 1;
-                    if (left <= 0) {
-                        Player player = server.getPlayerByUUID(entry.getKey());
-                        if (player != null) {
-                            removeOne(player, ModItems.SHMILKI);
-                        }
-                        return true;
-                    }
-                    entry.setValue(left);
-                    return false;
-                });
-            }
             if (--this.lifetime <= 0) {
                 this.discard();
             }
@@ -109,25 +83,6 @@ public class HagitEntity extends Mob {
             this.droppedChrono = true;
         }
         return super.hurtServer(level, source, amount);
-    }
-
-    @Override
-    public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (!this.level().isClientSide()) {
-            player.addItem(new ItemStack(ModItems.SHMILKI));
-            this.shmilkiTimers.put(player.getUUID(), 20); // vanishes after ~1 second
-        }
-        return InteractionResult.SUCCESS;
-    }
-
-    private static void removeOne(Player player, net.minecraft.world.item.Item item) {
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (stack.is(item)) {
-                stack.shrink(1);
-                break;
-            }
-        }
     }
 
     @Override

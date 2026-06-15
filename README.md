@@ -34,8 +34,7 @@ Breeding two Pilapot has a **20% chance** to produce an improved Pilapa: it runs
 - **Doron Fishler** (דורון פישלר): a villager profession whose job site is the **microphone**
   block. Craft and place a microphone near an unemployed villager to make a Doron.
 - **Hagit spaceship** (ספינת החלל חגית): drifts overhead at night. Shoot it with an arrow and
-  it drops the **chrono-thing**; right-click it for a **Shmilki** that fizzles away a second
-  later. Summon/toggle it with **`/tooglehgit`**.
+  it drops the **chrono-thing**. Summon/toggle it with **`/tooglehgit`**.
 - **Alien ship** (חללית חייזרים): at night it vacuums up your **laundry powder** — but only if
   you're standing under open sky — and 25% of the time turns a pair of leather boots into a
   single **sock**. Summon/toggle it with **`/tooglealians`**.
@@ -43,7 +42,7 @@ Breeding two Pilapot has a **20% chance** to produce an improved Pilapa: it runs
   machine under open sky is **bait** that lures the alien ship; building a **roof** over it
   keeps the powder safe. Turns up in ~50% of village house chests.
 - **Chrono-thing**: using it costs 5 health, with a 25% chance to lose an extra 3–20, and a
-  10% chance to die on the spot.
+  10% chance to die on the spot — and it hands you a **Shmilki that fizzles away** a second later.
 - **Socks**: use a sock to combine two of the **same colour** back into dyed leather boots.
 - **Wilhelm scream**: a 1% chance to play on any hit.
 
