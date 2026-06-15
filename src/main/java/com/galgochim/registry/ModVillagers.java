@@ -22,9 +22,8 @@ import net.minecraft.world.item.trading.TradeSet;
  * In MC 26.1.2 villager trades are fully data-driven: a profession maps each
  * level to a {@code ResourceKey<TradeSet>}, and the trade sets themselves are
  * defined as datapack JSON (registries {@code trade_set} / {@code villager_trade}).
- * Doron is registered here as a working profession; his Shmamba / Shmilki / book
- * trade sets are a documented follow-up (see README) - all of those items are
- * already obtainable in the creative menu and via village loot in the meantime.
+ * The trade-set JSON lives under {@code data/galgochim/trade_set/} and
+ * {@code data/galgochim/villager_trade/} (+ a tag in {@code tags/villager_trade/}).
  */
 public final class ModVillagers {
     private ModVillagers() {
@@ -35,15 +34,21 @@ public final class ModVillagers {
     public static final ResourceKey<VillagerProfession> DORON_KEY =
             ResourceKey.create(Registries.VILLAGER_PROFESSION, Galgochim.id("doron_fishler"));
 
+    private static final ResourceKey<TradeSet> DORON_TRADES_1 =
+            ResourceKey.create(Registries.TRADE_SET, Galgochim.id("doron_level_1"));
+    private static final ResourceKey<TradeSet> DORON_TRADES_2 =
+            ResourceKey.create(Registries.TRADE_SET, Galgochim.id("doron_level_2"));
+
     public static void register() {
         // The microphone block is Doron's job site (point of interest).
         PoiType poi = new PoiType(
                 ImmutableSet.copyOf(ModBlocks.MICROPHONE.getStateDefinition().getPossibleStates()), 1, 1);
         Registry.register(BuiltInRegistries.POINT_OF_INTEREST_TYPE, DORON_POI_KEY, poi);
 
-        // level -> trade set. Left empty for now (data-driven trade sets are a
-        // follow-up); referencing a missing trade set would break datapack load.
+        // level -> trade set (defined as datapack JSON, see data/galgochim/trade_set).
         Int2ObjectMap<ResourceKey<TradeSet>> trades = new Int2ObjectOpenHashMap<>();
+        trades.put(1, DORON_TRADES_1);
+        trades.put(2, DORON_TRADES_2);
 
         VillagerProfession doron = new VillagerProfession(
                 Component.translatable("entity.galgochim.villager.doron_fishler"),

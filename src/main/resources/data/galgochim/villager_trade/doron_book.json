@@ -1,0 +1,13 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 5
+  },
+  "gives": {
+    "id": "galgochim:book_ani_yachol_lehasbir",
+    "count": 1
+  },
+  "max_uses": 8,
+  "reputation_discount": 0.05,
+  "xp": 5
+}

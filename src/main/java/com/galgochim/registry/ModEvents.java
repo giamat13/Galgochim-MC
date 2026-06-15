@@ -12,10 +12,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -63,14 +67,20 @@ public final class ModEvents {
     }
 
     private static void onWorldTick(ServerLevel level) {
+        List<ServerPlayer> players = level.players();
+        if (players.isEmpty()) {
+            return;
+        }
+
+        // Boats near a jukebox playing "Tekef Yavo Shekemist" go twice as fast (any time of day).
+        if (level.getGameTime() % 4L == 0L) {
+            boostBoatsNearShekemist(level, players);
+        }
+
         // Vanilla "night" window, derived from the game time (getGameTime is the
         // one time accessor available in these mappings).
         long timeOfDay = level.getGameTime() % 24000L;
         if (timeOfDay < 13000L || timeOfDay > 23000L) {
-            return;
-        }
-        List<ServerPlayer> players = level.players();
-        if (players.isEmpty()) {
             return;
         }
         if (hagitEnabled && level.getRandom().nextInt(2400) == 0) {
@@ -86,6 +96,39 @@ public final class ModEvents {
                 summonAlien(level, player);
             }
         }
+    }
+
+    /** Speed up boats near a jukebox that is playing the Shekemist disc. */
+    private static void boostBoatsNearShekemist(ServerLevel level, List<ServerPlayer> players) {
+        for (ServerPlayer player : players) {
+            for (AbstractBoat boat : level.getEntitiesOfClass(
+                    AbstractBoat.class, player.getBoundingBox().inflate(24.0, 8.0, 24.0))) {
+                if (hasShekemistJukeboxNear(level, boat.blockPosition())) {
+                    Vec3 v = boat.getDeltaMovement();
+                    double speed = Math.sqrt(v.x * v.x + v.z * v.z);
+                    if (speed > 0.05) {
+                        // Scale the horizontal velocity to 2x, capped so it can't run away.
+                        double factor = Math.min(speed * 2.0, 0.8) / speed;
+                        boat.setDeltaMovement(v.x * factor, v.y, v.z * factor);
+                        boat.hurtMarked = true; // push the new velocity to the client
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean hasShekemistJukeboxNear(ServerLevel level, BlockPos center) {
+        int r = 6;
+        for (BlockPos pos : BlockPos.betweenClosed(
+                center.offset(-r, -r, -r), center.offset(r, r, r))) {
+            BlockState state = level.getBlockState(pos);
+            if (state.is(Blocks.JUKEBOX) && state.getValue(JukeboxBlock.HAS_RECORD)
+                    && level.getBlockEntity(pos) instanceof Container container
+                    && container.getItem(0).is(ModItems.MUSIC_DISC_TEKEF_YAVO_SHEKEMIST)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** True if a full washing machine stands under open sky near the position. */
