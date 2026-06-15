@@ -1,0 +1,184 @@
+"""Generate placeholder textures + item JSON for the issue #1 / #4 additions.
+
+Pure-Python PNG writer (no Pillow dependency) so it runs anywhere.
+"""
+import json
+import os
+import random
+import struct
+import zlib
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+ASSETS = os.path.join(ROOT, "src", "main", "resources", "assets", "galgochim")
+ITEM_TEX = os.path.join(ASSETS, "textures", "item")
+ENT_TEX = os.path.join(ASSETS, "textures", "entity")
+BLOCK_TEX = os.path.join(ASSETS, "textures", "block")
+ITEM_DEF = os.path.join(ASSETS, "items")
+ITEM_MODEL = os.path.join(ASSETS, "models", "item")
+BLOCK_MODEL = os.path.join(ASSETS, "models", "block")
+BLOCKSTATE = os.path.join(ASSETS, "blockstates")
+for d in (ITEM_TEX, ENT_TEX, BLOCK_TEX, ITEM_DEF, ITEM_MODEL, BLOCK_MODEL, BLOCKSTATE):
+    os.makedirs(d, exist_ok=True)
+
+
+def write_png(path, width, height, pixels):
+    """pixels: list of (r,g,b,a) of length width*height (row-major)."""
+    def chunk(typ, data):
+        return (struct.pack(">I", len(data)) + typ + data
+                + struct.pack(">I", zlib.crc32(typ + data) & 0xffffffff))
+
+    raw = bytearray()
+    for y in range(height):
+        raw.append(0)  # filter type 0 (None)
+        for x in range(width):
+            r, g, b, a = pixels[y * width + x]
+            raw.extend((r & 255, g & 255, b & 255, a & 255))
+    sig = b"\x89PNG\r\n\x1a\n"
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0)
+    idat = zlib.compress(bytes(raw), 9)
+    with open(path, "wb") as f:
+        f.write(sig)
+        f.write(chunk(b"IHDR", ihdr))
+        f.write(chunk(b"IDAT", idat))
+        f.write(chunk(b"IEND", b""))
+
+
+def noisy_item(name, base, accent, seed):
+    """A simple 16x16 blob with a little noise and an accent stripe."""
+    rnd = random.Random(seed)
+    w = h = 16
+    px = [(0, 0, 0, 0)] * (w * h)
+    px = list(px)
+    for y in range(2, 14):
+        for x in range(3, 13):
+            jitter = rnd.randint(-16, 16)
+            col = accent if (4 <= y <= 7) else base
+            px[y * w + x] = (
+                max(0, min(255, col[0] + jitter)),
+                max(0, min(255, col[1] + jitter)),
+                max(0, min(255, col[2] + jitter)),
+                255,
+            )
+    write_png(os.path.join(ITEM_TEX, name + ".png"), w, h, px)
+
+
+def ship_tex(name, hull, dome, seed):
+    rnd = random.Random(seed)
+    w = h = 128
+    px = [(0, 0, 0, 0)] * (w * h)
+    for y in range(h):
+        for x in range(w):
+            if x < 64 and y < 64:
+                col = hull          # hull faces (rough region)
+            elif y < 96:
+                col = dome
+            else:
+                col = hull
+            j = rnd.randint(-12, 12)
+            px[y * w + x] = (
+                max(0, min(255, col[0] + j)),
+                max(0, min(255, col[1] + j)),
+                max(0, min(255, col[2] + j)),
+                255,
+            )
+    write_png(os.path.join(ENT_TEX, name + ".png"), w, h, px)
+
+
+def item_json(name):
+    with open(os.path.join(ITEM_DEF, name + ".json"), "w") as f:
+        json.dump({"model": {"type": "minecraft:model",
+                              "model": "galgochim:item/" + name}}, f, indent=2)
+    with open(os.path.join(ITEM_MODEL, name + ".json"), "w") as f:
+        json.dump({"parent": "minecraft:item/generated",
+                   "textures": {"layer0": "galgochim:item/" + name}}, f, indent=2)
+
+
+# Item textures + JSON.
+ITEMS = {
+    "shmamba": ((226, 198, 120), (180, 120, 60)),
+    "shmilki": ((235, 235, 240), (120, 90, 200)),
+    "book_ani_yachol_lehasbir": ((150, 60, 60), (220, 200, 120)),
+    "laundry_powder": ((220, 230, 245), (120, 160, 210)),
+    "chrono": ((80, 80, 110), (180, 120, 220)),
+    "sock": ((240, 240, 240), (200, 60, 60)),
+}
+for i, (name, (base, accent)) in enumerate(ITEMS.items()):
+    noisy_item(name, base, accent, seed=100 + i)
+    item_json(name)
+
+# Entity (ship) textures.
+ship_tex("hagit", hull=(150, 150, 160), dome=(120, 200, 230), seed=11)
+ship_tex("alien_ship", hull=(90, 150, 90), dome=(150, 240, 150), seed=22)
+
+
+def block_tex(name, base, accent, seed):
+    rnd = random.Random(seed)
+    w = h = 16
+    px = [(0, 0, 0, 0)] * (w * h)
+    for y in range(h):
+        for x in range(w):
+            col = accent if (5 <= y <= 10 and 5 <= x <= 10) else base
+            j = rnd.randint(-14, 14)
+            px[y * w + x] = (
+                max(0, min(255, col[0] + j)),
+                max(0, min(255, col[1] + j)),
+                max(0, min(255, col[2] + j)),
+                255,
+            )
+    write_png(os.path.join(BLOCK_TEX, name + ".png"), w, h, px)
+
+
+def block_json(name):
+    # cube_all block model
+    with open(os.path.join(BLOCK_MODEL, name + ".json"), "w") as f:
+        json.dump({"parent": "minecraft:block/cube_all",
+                   "textures": {"all": "galgochim:block/" + name}}, f, indent=2)
+    # item model parents the block model
+    with open(os.path.join(ITEM_MODEL, name + ".json"), "w") as f:
+        json.dump({"parent": "galgochim:block/" + name}, f, indent=2)
+    # item definition
+    with open(os.path.join(ITEM_DEF, name + ".json"), "w") as f:
+        json.dump({"model": {"type": "minecraft:model",
+                             "model": "galgochim:block/" + name}}, f, indent=2)
+
+
+BLOCKS = {
+    "microphone": ((60, 60, 66), (200, 200, 210)),
+    "washing_machine": ((225, 230, 240), (120, 170, 220)),
+}
+for i, (name, (base, accent)) in enumerate(BLOCKS.items()):
+    block_tex(name, base, accent, seed=300 + i)
+    block_json(name)
+
+# Doron Fishler villager profession overlay (64x64).
+def villager_profession(name, apron, seed):
+    rnd = random.Random(seed)
+    w = h = 64
+    px = [(0, 0, 0, 0)] * (w * h)
+    # A coloured apron over the villager's torso, plus a dark "microphone" on the chest.
+    for y in range(20, 31):
+        for x in range(20, 28):
+            j = rnd.randint(-12, 12)
+            px[y * w + x] = (max(0, min(255, apron[0] + j)),
+                             max(0, min(255, apron[1] + j)),
+                             max(0, min(255, apron[2] + j)), 255)
+    for y in range(19, 25):
+        px[y * w + 24] = (30, 30, 34, 255)  # mic stand
+    px[18 * w + 24] = (60, 60, 66, 255)      # mic head
+    prof_dir = os.path.join(ENT_TEX, "villager", "profession")
+    os.makedirs(prof_dir, exist_ok=True)
+    write_png(os.path.join(prof_dir, name + ".png"), w, h, px)
+
+
+villager_profession("doron_fishler", apron=(40, 120, 160), seed=77)
+
+# Blockstates.
+with open(os.path.join(BLOCKSTATE, "microphone.json"), "w") as f:
+    json.dump({"variants": {"": {"model": "galgochim:block/microphone"}}}, f, indent=2)
+with open(os.path.join(BLOCKSTATE, "washing_machine.json"), "w") as f:
+    json.dump({"variants": {
+        "filled=true": {"model": "galgochim:block/washing_machine"},
+        "filled=false": {"model": "galgochim:block/washing_machine"},
+    }}, f, indent=2)
+
+print("issue assets generated")

@@ -1,10 +1,14 @@
 package com.galgochim;
 
+import com.galgochim.registry.ModBlocks;
+import com.galgochim.registry.ModCommands;
 import com.galgochim.registry.ModEntities;
+import com.galgochim.registry.ModEvents;
 import com.galgochim.registry.ModItems;
 import com.galgochim.registry.ModLoot;
 import com.galgochim.registry.ModSounds;
 import com.galgochim.registry.ModSpawns;
+import com.galgochim.registry.ModVillagers;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.Identifier;
 
@@ -26,9 +30,13 @@ public class Galgochim implements ModInitializer {
 	public void onInitialize() {
 		ModSounds.register();
 		ModEntities.register();
+		ModBlocks.register();
 		ModItems.register();
+		ModVillagers.register();
 		ModSpawns.register();
 		ModLoot.register();
+		ModEvents.register();
+		ModCommands.register();
 
 		LOGGER.info("Galgochim loaded: galgochim, pilapot and karnerim are roaming!");
 	}

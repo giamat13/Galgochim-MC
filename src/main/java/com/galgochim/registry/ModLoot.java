@@ -35,6 +35,14 @@ public final class ModLoot {
             BuiltInLootTables.VILLAGE_SNOWY_HOUSE,
             BuiltInLootTables.VILLAGE_SAVANNA_HOUSE);
 
+    /** Village house chests, where washing machines (and the book) turn up. */
+    private static final Set<ResourceKey<LootTable>> HOUSE_TABLES = Set.of(
+            BuiltInLootTables.VILLAGE_DESERT_HOUSE,
+            BuiltInLootTables.VILLAGE_PLAINS_HOUSE,
+            BuiltInLootTables.VILLAGE_TAIGA_HOUSE,
+            BuiltInLootTables.VILLAGE_SNOWY_HOUSE,
+            BuiltInLootTables.VILLAGE_SAVANNA_HOUSE);
+
     public static void register() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
             // Sunken ships almost always carry "Tekef Yavo Shekemist" (~95%).
@@ -50,6 +58,13 @@ public final class ModLoot {
                         .setRolls(ConstantValue.exactly(1.0f))
                         .add(LootItem.lootTableItem(ModItems.MUSIC_DISC_FISHLAND_ANTHEM).setWeight(1))
                         .add(EmptyLootItem.emptyItem().setWeight(9)));
+            }
+            // Roughly half of village houses come with a washing machine to place.
+            if (HOUSE_TABLES.contains(key)) {
+                tableBuilder.withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(ModBlocks.WASHING_MACHINE).setWeight(1))
+                        .add(EmptyLootItem.emptyItem().setWeight(1)));
             }
         });
     }

@@ -1,7 +1,9 @@
 package com.galgochim.registry;
 
 import com.galgochim.Galgochim;
+import com.galgochim.entity.AlienShipEntity;
 import com.galgochim.entity.GalgoachEntity;
+import com.galgochim.entity.HagitEntity;
 import com.galgochim.entity.KarnerEntity;
 import com.galgochim.entity.PilapaEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -29,6 +31,15 @@ public final class ModEntities {
             "karner",
             EntityType.Builder.of(KarnerEntity::new, MobCategory.MONSTER).sized(0.8f, 1.6f));
 
+    // Spaceships: large, never naturally spawned (summoned/scripted), and never despawn-culled.
+    public static final EntityType<HagitEntity> HAGIT = register(
+            "hagit",
+            EntityType.Builder.of(HagitEntity::new, MobCategory.MISC).sized(4.0f, 1.5f).fireImmune());
+
+    public static final EntityType<AlienShipEntity> ALIEN_SHIP = register(
+            "alien_ship",
+            EntityType.Builder.of(AlienShipEntity::new, MobCategory.MISC).sized(4.0f, 1.5f).fireImmune());
+
     private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {
         ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Galgochim.id(name));
         return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, builder.build(key));
@@ -39,5 +50,7 @@ public final class ModEntities {
         FabricDefaultAttributeRegistry.register(GALGOACH, GalgoachEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(PILAPA, PilapaEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(KARNER, KarnerEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(HAGIT, HagitEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(ALIEN_SHIP, AlienShipEntity.createAttributes());
     }
 }

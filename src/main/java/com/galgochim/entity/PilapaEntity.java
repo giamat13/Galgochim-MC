@@ -1,10 +1,13 @@
 package com.galgochim.entity;
 
+import com.galgochim.Galgochim;
 import com.galgochim.registry.ModEntities;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -27,6 +30,20 @@ import net.minecraft.world.level.Level;
  * away from any Karner that comes hunting it.
  */
 public class PilapaEntity extends Animal {
+
+    /**
+     * Issue #4: breeding two Pilapot can yield an improved "fancy" Pilapa that
+     * runs faster and stands taller (longer legs). These permanent attribute
+     * modifiers are saved/restored by the vanilla attribute system, so the
+     * variant survives reloads without any custom NBT.
+     */
+    private static final AttributeModifier FANCY_SPEED = new AttributeModifier(
+            Galgochim.id("fancy_pilapa_speed"), 0.4, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+    private static final AttributeModifier FANCY_SCALE = new AttributeModifier(
+            Galgochim.id("fancy_pilapa_scale"), 0.25, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+
+    /** Chance that a bred Pilapa is born as the improved variant. */
+    private static final float FANCY_CHANCE = 0.2f;
 
     public PilapaEntity(EntityType<? extends PilapaEntity> type, Level level) {
         super(type, level);
@@ -60,6 +77,24 @@ public class PilapaEntity extends Animal {
 
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
-        return ModEntities.PILAPA.create(level, EntitySpawnReason.BREEDING);
+        PilapaEntity child = ModEntities.PILAPA.create(level, EntitySpawnReason.BREEDING);
+        if (child != null && this.random.nextFloat() < FANCY_CHANCE) {
+            child.makeFancy();
+        }
+        return child;
+    }
+
+    /** Turn this Pilapa into the faster, taller "fancy" variant. */
+    public void makeFancy() {
+        AttributeInstance speed = this.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speed != null && !speed.hasModifier(FANCY_SPEED.id())) {
+            speed.addPermanentModifier(FANCY_SPEED);
+        }
+        // SCALE is a default attribute on every living entity; if it is somehow
+        // absent we simply skip the height boost rather than crashing.
+        AttributeInstance scale = this.getAttribute(Attributes.SCALE);
+        if (scale != null && !scale.hasModifier(FANCY_SCALE.id())) {
+            scale.addPermanentModifier(FANCY_SCALE);
+        }
     }
 }

@@ -22,5 +22,20 @@
         "stream": true
       }
     ]
+  },
+  "entity.wilhelm_scream": {
+    "sounds": [
+      {
+        "name": "galgochim:wilhelm_scream"
+      }
+    ]
+  },
+  "entity.amar_hakaptan": {
+    "sounds": [
+      {
+        "name": "galgochim:amar_hakaptan",
+        "stream": true
+      }
+    ]
   }
 }
