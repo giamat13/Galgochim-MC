@@ -69,6 +69,54 @@ jar {
 	}
 }
 
+// TEMPORARY: discover vanilla trade JSON schema + jukebox API.
+tasks.named('compileJava').configure {
+	doFirst {
+		try {
+			def mod = java.lang.reflect.Modifier
+			def urls = sourceSets.main.compileClasspath.files.collect { it.toURI().toURL() } as URL[]
+			def cl = new URLClassLoader(urls, ClassLoader.getSystemClassLoader())
+			println "=== REFLECT START ==="
+			['net.minecraft.world.level.block.entity.JukeboxBlockEntity', 'net.minecraft.world.item.JukeboxSongPlayer'].each { cn ->
+				try {
+					def c = Class.forName(cn, false, cl)
+					println "CLASS " + cn
+					c.getMethods().each { m ->
+						if (mod.isPublic(m.getModifiers()) && m.getDeclaringClass().getName().startsWith('net.minecraft')) {
+							println "  M " + m.getName() + "(" + m.getParameterTypes().collect { it.getSimpleName() }.join(',') + ") : " + m.getReturnType().getSimpleName()
+						}
+					}
+				} catch (Throwable t) {
+					println "  ERR " + t
+				}
+			}
+			def dumped = ['data/minecraft/trade_set/': 0, 'data/minecraft/villager_trade/': 0]
+			sourceSets.main.compileClasspath.files.each { f ->
+				if (f.name.endsWith('.jar')) {
+					try {
+						new java.util.zip.ZipFile(f).withCloseable { zf ->
+							zf.entries().each { e ->
+								dumped.keySet().each { pfx ->
+									if (e.name.startsWith(pfx) && e.name.endsWith('.json') && dumped[pfx] < 2) {
+										dumped[pfx] = dumped[pfx] + 1
+										println "FILE " + e.name
+										println zf.getInputStream(e).getText('UTF-8')
+										println "ENDFILE"
+									}
+								}
+							}
+						}
+					} catch (ignored) {
+					}
+				}
+			}
+			println "=== REFLECT END ==="
+		} catch (Throwable t) {
+			println "discovery failed: " + t
+		}
+	}
+}
+
 // configure the maven publication
 publishing {
 	publications {
