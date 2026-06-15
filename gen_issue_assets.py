@@ -150,6 +150,28 @@ for i, (name, (base, accent)) in enumerate(BLOCKS.items()):
     block_tex(name, base, accent, seed=300 + i)
     block_json(name)
 
+# Doron Fishler villager profession overlay (64x64).
+def villager_profession(name, apron, seed):
+    rnd = random.Random(seed)
+    w = h = 64
+    px = [(0, 0, 0, 0)] * (w * h)
+    # A coloured apron over the villager's torso, plus a dark "microphone" on the chest.
+    for y in range(20, 31):
+        for x in range(20, 28):
+            j = rnd.randint(-12, 12)
+            px[y * w + x] = (max(0, min(255, apron[0] + j)),
+                             max(0, min(255, apron[1] + j)),
+                             max(0, min(255, apron[2] + j)), 255)
+    for y in range(19, 25):
+        px[y * w + 24] = (30, 30, 34, 255)  # mic stand
+    px[18 * w + 24] = (60, 60, 66, 255)      # mic head
+    prof_dir = os.path.join(ENT_TEX, "villager", "profession")
+    os.makedirs(prof_dir, exist_ok=True)
+    write_png(os.path.join(prof_dir, name + ".png"), w, h, px)
+
+
+villager_profession("doron_fishler", apron=(40, 120, 160), seed=77)
+
 # Blockstates.
 with open(os.path.join(BLOCKSTATE, "microphone.json"), "w") as f:
     json.dump({"variants": {"": {"model": "galgochim:block/microphone"}}}, f, indent=2)
