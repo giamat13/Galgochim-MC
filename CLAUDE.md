@@ -22,7 +22,7 @@ There is no automated test suite — all testing is done by running the client a
 
 ## Project Overview
 
-**Galgochim** is a Fabric mod for Minecraft 26.1.2, written in Java 25. It adds three creatures (Galgoach, Pilapa, Karner), two spaceships (Hagit / alien ship), a villager NPC (Doron Fishler), two blocks (microphone, washing machine), several items, and three music discs.
+**Galgochim** is a Fabric mod for Minecraft 26.2, written in Java 25. It adds three creatures (Galgoach, Pilapa, Karner), two spaceships (Hagit / alien ship), a villager NPC (Doron Fishler), two blocks (microphone, washing machine), several items, and three music discs.
 
 ## Architecture
 
@@ -46,7 +46,7 @@ There is no automated test suite — all testing is done by running the client a
 ### Data-Driven Content (`src/main/resources/data/galgochim/`)
 - `jukebox_song/` — music disc definitions
 - `recipe/` — crafting recipes for blocks
-- `trade_set/` + `villager_trade/` — Doron Fishler's trades (MC 26.1.2 fully data-driven villager trade system using `Int2ObjectMap<ResourceKey<TradeSet>>`)
+- `trade_set/` + `villager_trade/` — Doron Fishler's trades (MC 26.2 fully data-driven villager trade system using `Int2ObjectMap<ResourceKey<TradeSet>>`)
 
 ### Assets (`src/main/resources/assets/galgochim/`)
 - `lang/en_us.json` and `lang/he_il.json` — all display strings (mod is bilingual English/Hebrew)
