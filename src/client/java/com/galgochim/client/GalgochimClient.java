@@ -28,5 +28,8 @@ public class GalgochimClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.KARNER, KarnerRenderer::new);
 		EntityRendererRegistry.register(ModEntities.HAGIT, HagitRenderer::new);
 		EntityRendererRegistry.register(ModEntities.ALIEN_SHIP, AlienShipRenderer::new);
+
+		// Issue #6: once-a-minute Hebrew-only chat grumble from Doron (client side).
+		DoronAcademyChatter.register();
 	}
 }
