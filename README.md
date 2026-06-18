@@ -51,7 +51,7 @@ Breeding two Pilapot has a **20% chance** to produce an improved Pilapa: it runs
 [SOUNDS_TODO.md](SOUNDS_TODO.md) to drop in the real audio.
 
 ### 🔜 Documented follow-ups
-A few sub-features depend on heavily reworked MC 26.1.2 systems and are left as follow-ups:
+A few sub-features depend on heavily reworked MC 26.2 systems and are left as follow-ups:
 - **Doron's trades** — villager trades are now fully data-driven
   (`Int2ObjectMap<ResourceKey<TradeSet>>` + `trade_set` / `villager_trade` datapack registries).
   Doron is registered as a working profession; his Shmamba/Shmilki/book trade sets need
@@ -100,7 +100,7 @@ Pop one into a jukebox and give it a listen. 🎵
 
 ## 📦 Requirements
 
-- Minecraft **26.1.2**
+- Minecraft **26.2**
 - **Fabric Loader** ≥ 0.19.3
 - **Fabric API**
 - **Java 25**
